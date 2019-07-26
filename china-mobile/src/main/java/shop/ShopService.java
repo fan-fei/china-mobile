@@ -17,12 +17,13 @@ import shop.bean.NotifyOrderReq;
 @Service
 public class ShopService {
 
+    private static final String secretKey = "HAScKuCxAy3YMARIfzug9e95r0F3MmZ6DY2SSrv9DqcTvUBKH17XDqvBivgvHtf48vgoyoYsJRfVcURgy9822LFVb6bHIYfjBZrxAFWqZGUCEuHR9EwsnfyULdRd0uVs";
+
     public BaseResult getMember(String req) throws Exception {
 
         BaseResult baseResult = new BaseResult();
         baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
 
-        String secretKey = "RMSMs44C4YRA25w27nRjN399VTUVVBY2eGy6E2v";
         String request = new String(Base64.getDecoder().decode(req));
         String inputSign = request.substring(0, 32);
         String inputJson = request.substring(32);
