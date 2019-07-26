@@ -42,6 +42,19 @@ public class ShopService {
         return baseResult;
     }
 
+    public BaseResult setCodeInvalid(String req) {
+
+        BaseResult baseResult = new BaseResult();
+        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
+
+        if (!signCheck(req)) {
+            baseResult.setErrorCodeDef(ErrorCode.FAIL_SIGN_WRONG);
+            return baseResult;
+        }
+
+        return baseResult;
+    }
+
     private boolean signCheck(String req) {
         String request = new String(Base64.getDecoder().decode(req));
         String inputSign = request.substring(0, 32);

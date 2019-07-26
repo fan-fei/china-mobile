@@ -26,4 +26,9 @@ public class ShopController {
     public BaseResult resendVirtualCode(@RequestParam String req) {
         return shopService.resendVirtualCode(req);
     }
+
+    @PostMapping(value = "/setCodeInvalid")
+    public BaseResult setCodeInvalid(@RequestParam String req) {
+        return shopService.setCodeInvalid(req);
+    }
 }
