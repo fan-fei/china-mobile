@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/chinaMoble", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+@RequestMapping(value = "/chinaMobile", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 public class ShopController {
 
     @Resource
     private ShopService shopService;
 
     @PostMapping(value = "/notifyOrder")
-    public String getMember(@RequestParam String req) {
+    public String getMember(@RequestParam String req) throws Exception {
         return shopService.getMember(req);
     }
 }
