@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import shop.bean.BaseResult;
+
 @RestController
 @RequestMapping(value = "/chinaMobile", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 public class ShopController {
@@ -16,7 +18,7 @@ public class ShopController {
     private ShopService shopService;
 
     @PostMapping(value = "/notifyOrder")
-    public String getMember(@RequestParam String req) throws Exception {
+    public BaseResult getMember(@RequestParam String req) throws Exception {
         return shopService.getMember(req);
     }
 }
