@@ -6,12 +6,9 @@ import java.util.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 import shop.bean.BaseResult;
 import shop.bean.ErrorCode;
-import shop.bean.NotifyOrderReq;
 
 @Slf4j
 @Service
@@ -30,8 +27,6 @@ public class ShopService {
         log.info(SECRET_KEY);
         log.info(inputSign);
         log.info(inputJson);
-
-        NotifyOrderReq notifyOrderReq = new ObjectMapper().readValue(inputJson, NotifyOrderReq.class);
 
         char[] requestJsonChars = inputJson.toCharArray();
         Arrays.sort(requestJsonChars);
