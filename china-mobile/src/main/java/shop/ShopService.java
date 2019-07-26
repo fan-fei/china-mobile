@@ -31,7 +31,7 @@ public class ShopService {
         Arrays.sort(requestJsonChars);
         String md5Sign = DigestUtils.md5DigestAsHex(secretKey.concat(String.valueOf(requestJsonChars)).getBytes()).toLowerCase();
         if (!inputSign.equals(md5Sign)) {
-            baseResult.setErrorCodeDef(ErrorCode.FAIL_NEED_PARAMS);
+            baseResult.setErrorCodeDef(ErrorCode.FAIL_SIGN_WRONG);
             return baseResult;
         }
 
