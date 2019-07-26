@@ -1,14 +1,25 @@
 package shop;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import shop.bean.BaseResult;
 import shop.bean.ErrorCode;
+import shop.bean.SetVirtualCodeParam;
+import shop.bean.SetVirtualCodeParam.DataBen.VirtualCodesBen;
 
 @Slf4j
 @Service
@@ -55,6 +66,46 @@ public class ShopService {
         return baseResult;
     }
 
+    public BaseResult setVirtualCode(String req) {
+
+        BaseResult baseResult = new BaseResult();
+        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
+
+        SetVirtualCodeParam s = new SetVirtualCodeParam();
+        s.setSource("1");
+        s.setVersion("2.0");
+        s.setIdentity_id("CMV10998601");
+
+        s.getData().setItemId("X17011900041638-01");
+        s.getData().setOrderId("V19072608595411");
+
+        VirtualCodesBen v = new VirtualCodesBen();
+        v.setVcode("CMV10998601_1234");
+        v.setVcodePass("CMV10998601_1234");
+
+        s.getData().getVirtualCodes().add(v);
+
+        OkHttpClient client = new OkHttpClient();
+        String chinaMobileReq = null;
+        try {
+            chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
+        } catch (JsonProcessingException e1) {
+
+        }
+
+        Request request = new Request.Builder()
+                .url("http://223.71.96.237:20081/vapi/service/setVirtualCode?req=" + getSignedReq(chinaMobileReq))
+                .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            log.info(response.body().string());
+        } catch (IOException e) {
+        }
+
+        return baseResult;
+    }
+
     private boolean signCheck(String req) {
         String request = new String(Base64.getDecoder().decode(req));
         String inputSign = request.substring(0, 32);
@@ -68,5 +119,14 @@ public class ShopService {
         String md5Sign = DigestUtils.md5DigestAsHex(SECRET_KEY.concat(String.valueOf(requestJsonChars)).getBytes()).toLowerCase();
         log.info(md5Sign);
         return inputSign.equals(md5Sign);
+    }
+
+    private String getSignedReq(String inputJson) {
+
+        char[] requestJsonChars = inputJson.toCharArray();
+        Arrays.sort(requestJsonChars);
+        String md5Sign = DigestUtils.md5DigestAsHex(SECRET_KEY.concat(String.valueOf(requestJsonChars)).getBytes()).toLowerCase();
+        log.info(md5Sign);
+        return Base64.getEncoder().encodeToString(md5Sign.concat(inputJson).getBytes());
     }
 }
