@@ -18,7 +18,12 @@ public class ShopController {
     private ShopService shopService;
 
     @PostMapping(value = "/notifyOrder")
-    public BaseResult getMember(@RequestParam String req) throws Exception {
-        return shopService.getMember(req);
+    public BaseResult notifyOrder(@RequestParam String req) {
+        return shopService.notifyOrder(req);
+    }
+
+    @PostMapping(value = "/resendVirtualCode")
+    public BaseResult resendVirtualCode(@RequestParam String req) {
+        return shopService.resendVirtualCode(req);
     }
 }
