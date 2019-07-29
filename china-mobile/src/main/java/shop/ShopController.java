@@ -36,4 +36,9 @@ public class ShopController {
     public BaseResult setVirtualCode(@RequestParam String req) {
         return shopService.setVirtualCode(req);
     }
+
+    @PostMapping(value = "/setRecord")
+    public BaseResult setRecord(@RequestParam String req) {
+        return shopService.setRecord(req);
+    }
 }

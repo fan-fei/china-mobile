@@ -14,10 +14,10 @@ public class SetVirtualCodeParam extends BaseParam {
 
         private String orderId;
 
-        private java.util.List<VirtualCodesBen> virtualCodes= Lists.newArrayList();
+        private java.util.List<VirtualCodesBean> virtualCodes= Lists.newArrayList();
 
         @lombok.Data
-        public static class VirtualCodesBen {
+        public static class VirtualCodesBean {
 
             private String vcodePass;
 
