@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -88,6 +89,11 @@ public class ShopService {
 
         new Thread(() -> {
             for (int i = 0; i < 500; i++) {
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException e) {
+                    log.error("", e);
+                }
                 BaseResult res = setVirtualCode("V18032816917475", "http://223.71.96.237:20081/vapi/service/retry/setVirtualCode?req=");
                 if (!res.codeEquals(ErrorCode.SUCCESS)) {
                     continue;
@@ -105,6 +111,11 @@ public class ShopService {
 
         new Thread(() -> {
             for (int i = 0; i < 500; i++) {
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException e) {
+                    log.error("", e);
+                }
                 BaseResult res = setRecord("V18032816917475", "http://223.71.96.237:20081/vapi/service/retry/setRecord?req=");
                 if (!res.codeEquals(ErrorCode.SUCCESS)) {
                     continue;
