@@ -31,7 +31,7 @@ import shop.bean.SetVirtualCodeParam.DataBen.VirtualCodesBean;
 @Service
 public class ShopService {
 
-    private static final String SECRET_KEY = "HAScKuCxAy3YMARIfzug9e95r0F3MmZ6DY2SSrv9DqcTvUBKH17XDqvBivgvHtf48vgoyoYsJRfVcURgy9822LFVb6bHIYfjBZrxAFWqZGUCEuHR9EwsnfyULdRd0uVs";
+    private static final String SECRET_KEY = "vY7YeF1jdjCflNLhipqNdiueFiuzSnG1YaotV4j2iqD6CvJGnVcQWMVM7ruOQOcohd953TsURh1IQEUiJlkedGqjWo8Y0Iu773jqmPRsSNcDi1NPkC9rGWchse7qmeGq";
 
     public BaseResult notifyOrder(String req) {
 
@@ -74,12 +74,12 @@ public class ShopService {
 
     public BaseResult setVirtualCode(String req) {
 
-        return setVirtualCode("V19072608595411", "http://223.71.96.237:20081/vapi/service/setVirtualCode?req=");
+        return setVirtualCode("V19072910262623", "http://223.71.96.237:20081/vapi/service/setVirtualCode?req=");
     }
 
     public BaseResult setRecord(String req) {
 
-        return setRecord("V19072608595411", "http://223.71.96.237:20081/vapi/service/setRecord?req=");
+        return setRecord("V19072910262623", "http://223.71.96.237:20081/vapi/service/setRecord?req=");
     }
 
     public BaseResult setRetryVirtualCode(String req) {
@@ -133,8 +133,8 @@ public class ShopService {
 
         CancelOrderParam param = new CancelOrderParam();
 
-        param.getData().setOrderId("V19072608595411");
-        param.getData().setUserPhone("18600432553");
+        param.getData().setOrderId("V19072910262623");
+        param.getData().setUserPhone("13552760420");
         param.getData().setMemo("撤单原因");
 
         return okHttpRequest("http://223.71.96.237:20081/vapi/service/cancelOrder?req=", param);
@@ -173,8 +173,8 @@ public class ShopService {
         param.getData().setOrderId(orderId);
 
         VirtualCodesBean v = new VirtualCodesBean();
-        v.setVcode("CMV10998601_1234");
-        v.setVcodePass("CMV10998601_1234");
+        v.setVcode("CMV10998595_1234");
+        v.setVcodePass("CMV10998595_1234");
 
         param.getData().getVirtualCodes().add(v);
 
@@ -187,13 +187,13 @@ public class ShopService {
         RecordListBean record = new RecordListBean();
         record.setItemId("X17011900041638-01");
         record.setOrderId(orderId);
-        record.setUseId("CMV10998601_1234");
-        record.setVirtualCode("CMV10998601_1234");
-        record.setVirtualCodePass("CMV10998601_1234");
+        record.setUseId("CMV10998595_1234");
+        record.setVirtualCode("CMV10998595_1234");
+        record.setVirtualCodePass("CMV10998595_1234");
         record.setUseAmount("5.0");
         record.setUseDatetime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         record.setUseContent("消费内容");
-        record.setPhone("18600432553");
+        record.setPhone("13552760420");
 
         param.getData().getRecordList().add(record);
 
