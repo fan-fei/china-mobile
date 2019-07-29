@@ -41,4 +41,9 @@ public class ShopController {
     public BaseResult setRecord(@RequestParam String req) {
         return shopService.setRecord(req);
     }
+
+    @PostMapping(value = "/cancelOrder")
+    public BaseResult cancelOrder(@RequestParam String req) {
+        return shopService.cancelOrder(req);
+    }
 }

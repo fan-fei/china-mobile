@@ -18,6 +18,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import shop.bean.BaseResult;
+import shop.bean.CancelOrderParam;
 import shop.bean.ErrorCode;
 import shop.bean.SetRecordParam;
 import shop.bean.SetRecordParam.RecordListBean;
@@ -89,8 +90,8 @@ public class ShopService {
         String chinaMobileReq = null;
         try {
             chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
-        } catch (JsonProcessingException e1) {
-
+        } catch (JsonProcessingException e) {
+            log.error("", e);
         }
 
         Request request = new Request.Builder()
@@ -101,6 +102,7 @@ public class ShopService {
             Response response = client.newCall(request).execute();
             log.info(response.body().string());
         } catch (IOException e) {
+            log.error("", e);
         }
 
         return baseResult;
@@ -130,8 +132,8 @@ public class ShopService {
         String chinaMobileReq = null;
         try {
             chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
-        } catch (JsonProcessingException e1) {
-
+        } catch (JsonProcessingException e) {
+            log.error("", e);
         }
 
         Request request = new Request.Builder()
@@ -142,6 +144,40 @@ public class ShopService {
             Response response = client.newCall(request).execute();
             log.info(response.body().string());
         } catch (IOException e) {
+            log.error("", e);
+        }
+
+        return baseResult;
+    }
+
+    public BaseResult cancelOrder(String req) {
+
+        BaseResult baseResult = new BaseResult();
+        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
+
+        CancelOrderParam s = new CancelOrderParam();
+
+        s.getData().setOrderId("V19072608595411");
+        s.getData().setUserPhone("18600432553");
+        s.getData().setMemo("撤单原因");
+
+        OkHttpClient client = new OkHttpClient();
+        String chinaMobileReq = null;
+        try {
+            chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
+        } catch (JsonProcessingException e) {
+            log.error("", e);
+        }
+
+        Request request = new Request.Builder()
+                .url("http://223.71.96.237:20081/vapi/service/cancelOrder?req=" + getSignedReq(chinaMobileReq))
+                .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            log.info(response.body().string());
+        } catch (IOException e) {
+            log.error("", e);
         }
 
         return baseResult;
