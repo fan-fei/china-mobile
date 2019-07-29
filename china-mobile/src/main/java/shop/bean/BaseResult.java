@@ -7,12 +7,12 @@ public class BaseResult {
     private Integer code;
     private String msg;
 
-    public void setErrorCodeDef(ErrorCodeDef errorCodeDef) {
+    public void editErrorCodeDef(ErrorCodeDef errorCodeDef) {
         this.code = errorCodeDef.getCode();
         this.msg = errorCodeDef.getMsg();
     }
 
-    public void setErrorCodeDef(BaseResult baseResult) {
+    public void editErrorCodeDef(BaseResult baseResult) {
         this.code = baseResult.getCode();
         this.msg = baseResult.getMsg();
     }
