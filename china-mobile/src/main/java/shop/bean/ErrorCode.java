@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 public class ErrorCode {
 
     public static final ErrorCodeDef SUCCESS = new ErrorCodeDef(0, "成功");
+    public static final ErrorCodeDef FAIL = new ErrorCodeDef(1, "失败");
     public static final ErrorCodeDef FAIL_SIGN_WRONG = new ErrorCodeDef(1001, "验签失败，您所传递的数据签名在API服务器端没有验证通过");
     public static final ErrorCodeDef FAIL_NEED_PARAMS = new ErrorCodeDef(1002, "缺少参数，某个必须传递的参数您没有传递");
     public static final ErrorCodeDef FAIL_FORMAT_INVALID = new ErrorCodeDef(1003, "参数格式错误或不在正确范围内");

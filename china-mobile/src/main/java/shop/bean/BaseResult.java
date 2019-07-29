@@ -12,4 +12,14 @@ public class BaseResult {
         this.msg = errorCodeDef.getMsg();
     }
 
+    public void setErrorCodeDef(BaseResult baseResult) {
+        this.code = baseResult.getCode();
+        this.msg = baseResult.getMsg();
+    }
+
+    public boolean codeEquals(ErrorCodeDef errorCodeDef) {
+        return this.code.equals(errorCodeDef.getCode());
+
+    }
+
 }

@@ -46,4 +46,14 @@ public class ShopController {
     public BaseResult cancelOrder(@RequestParam String req) {
         return shopService.cancelOrder(req);
     }
+
+    @PostMapping(value = "/retry/setVirtualCode")
+    public BaseResult setRetryVirtualCode(@RequestParam String req) {
+        return shopService.setRetryVirtualCode(req);
+    }
+
+    @PostMapping(value = "/retry/setRecord")
+    public BaseResult setRetryRecord(@RequestParam String req) {
+        return shopService.setRetryRecord(req);
+    }
 }

@@ -72,80 +72,44 @@ public class ShopService {
 
     public BaseResult setVirtualCode(String req) {
 
-        BaseResult baseResult = new BaseResult();
-        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
-
-        SetVirtualCodeParam s = new SetVirtualCodeParam();
-
-        s.getData().setItemId("X17011900041638-01");
-        s.getData().setOrderId("V19072608595411");
-
-        VirtualCodesBean v = new VirtualCodesBean();
-        v.setVcode("CMV10998601_1234");
-        v.setVcodePass("CMV10998601_1234");
-
-        s.getData().getVirtualCodes().add(v);
-
-        OkHttpClient client = new OkHttpClient();
-        String chinaMobileReq = null;
-        try {
-            chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
-        } catch (JsonProcessingException e) {
-            log.error("", e);
-        }
-
-        Request request = new Request.Builder()
-                .url("http://223.71.96.237:20081/vapi/service/setVirtualCode?req=" + getSignedReq(chinaMobileReq))
-                .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
-
-        try {
-            Response response = client.newCall(request).execute();
-            log.info(response.body().string());
-        } catch (IOException e) {
-            log.error("", e);
-        }
-
-        return baseResult;
+        return setVirtualCode("V19072608595411", "http://223.71.96.237:20081/vapi/service/setVirtualCode?req=");
     }
 
     public BaseResult setRecord(String req) {
 
+        return setRecord("V19072608595411", "http://223.71.96.237:20081/vapi/service/setRecord?req=");
+    }
+
+    public BaseResult setRetryVirtualCode(String req) {
+
         BaseResult baseResult = new BaseResult();
         baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
 
-        SetRecordParam s = new SetRecordParam();
+        new Thread(() -> {
+            for (int i = 0; i < 500; i++) {
+                BaseResult res = setVirtualCode("V18032816917475", "http://223.71.96.237:20081/vapi/service/retry/setVirtualCode?req=");
+                if (res.codeEquals(ErrorCode.SUCCESS)) {
+                    continue;
+                }
+            }
+        }).start();
 
-        RecordListBean record = new RecordListBean();
-        record.setItemId("X17011900041638-01");
-        record.setOrderId("V19072608595411");
-        record.setUseId("CMV10998601_1234");
-        record.setVirtualCode("CMV10998601_1234");
-        record.setVirtualCodePass("CMV10998601_1234");
-        record.setUseAmount("5.0");
-        record.setUseDatetime(LocalDateTime.now().toString());
-        record.setUseContent("消费内容");
-        record.setPhone("18600432553");
+        return baseResult;
+    }
 
-        s.getData().getRecordList().add(record);
+    public BaseResult setRetryRecord(String req) {
 
-        OkHttpClient client = new OkHttpClient();
-        String chinaMobileReq = null;
-        try {
-            chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
-        } catch (JsonProcessingException e) {
-            log.error("", e);
-        }
+        BaseResult baseResult = new BaseResult();
+        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
 
-        Request request = new Request.Builder()
-                .url("http://223.71.96.237:20081/vapi/service/setRecord?req=" + getSignedReq(chinaMobileReq))
-                .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
-
-        try {
-            Response response = client.newCall(request).execute();
-            log.info(response.body().string());
-        } catch (IOException e) {
-            log.error("", e);
-        }
+        new Thread(() -> {
+            for (int i = 0; i < 500; i++) {
+                BaseResult res = setRecord("V18032816917475", "http://223.71.96.237:20081/vapi/service/retry/setRecord?req=");
+                if (res.codeEquals(ErrorCode.SUCCESS)) {
+                    continue;
+                }
+            }
+        }).start();
 
         return baseResult;
     }
@@ -161,7 +125,6 @@ public class ShopService {
         s.getData().setUserPhone("18600432553");
         s.getData().setMemo("撤单原因");
 
-        OkHttpClient client = new OkHttpClient();
         String chinaMobileReq = null;
         try {
             chinaMobileReq = new ObjectMapper().writer().writeValueAsString(s);
@@ -174,7 +137,7 @@ public class ShopService {
                 .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
 
         try {
-            Response response = client.newCall(request).execute();
+            Response response = new OkHttpClient().newCall(request).execute();
             log.info(response.body().string());
         } catch (IOException e) {
             log.error("", e);
@@ -205,5 +168,71 @@ public class ShopService {
         String md5Sign = DigestUtils.md5DigestAsHex(SECRET_KEY.concat(String.valueOf(requestJsonChars)).getBytes()).toLowerCase();
         log.info(md5Sign);
         return Base64.getEncoder().encodeToString(md5Sign.concat(inputJson).getBytes());
+    }
+
+    private BaseResult setVirtualCode(String orderId, String url) {
+        BaseResult baseResult = new BaseResult();
+        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
+
+        SetVirtualCodeParam param = new SetVirtualCodeParam();
+        param.getData().setItemId("X17011900041638-01");
+        param.getData().setOrderId(orderId);
+
+        VirtualCodesBean v = new VirtualCodesBean();
+        v.setVcode("CMV10998601_1234");
+        v.setVcodePass("CMV10998601_1234");
+
+        param.getData().getVirtualCodes().add(v);
+
+        try {
+            Request request = new Request.Builder().url(url + getSignedReq(new ObjectMapper().writer().writeValueAsString(param)))
+                    .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
+
+            Response response = new OkHttpClient().newCall(request).execute();
+
+            log.info(response.body().string());
+
+            baseResult.setErrorCodeDef(new ObjectMapper().readValue(response.body().string(), BaseResult.class));
+            return baseResult;
+        } catch (IOException e) {
+            log.error("", e);
+            baseResult.setErrorCodeDef(ErrorCode.FAIL);
+            return baseResult;
+        }
+    }
+
+    private BaseResult setRecord(String orderId, String url) {
+        BaseResult baseResult = new BaseResult();
+        baseResult.setErrorCodeDef(ErrorCode.SUCCESS);
+
+        SetRecordParam param = new SetRecordParam();
+        RecordListBean record = new RecordListBean();
+        record.setItemId("X17011900041638-01");
+        record.setOrderId(orderId);
+        record.setUseId("CMV10998601_1234");
+        record.setVirtualCode("CMV10998601_1234");
+        record.setVirtualCodePass("CMV10998601_1234");
+        record.setUseAmount("5.0");
+        record.setUseDatetime(LocalDateTime.now().toString());
+        record.setUseContent("消费内容");
+        record.setPhone("18600432553");
+
+        param.getData().getRecordList().add(record);
+
+        try {
+            Request request = new Request.Builder().url(url + getSignedReq(new ObjectMapper().writer().writeValueAsString(param)))
+                    .post(RequestBody.create(MediaType.parse("application/json"), "{}")).build();
+
+            Response response = new OkHttpClient().newCall(request).execute();
+
+            log.info(response.body().string());
+
+            baseResult.setErrorCodeDef(new ObjectMapper().readValue(response.body().string(), BaseResult.class));
+            return baseResult;
+        } catch (IOException e) {
+            log.error("", e);
+            baseResult.setErrorCodeDef(ErrorCode.FAIL);
+            return baseResult;
+        }
     }
 }
