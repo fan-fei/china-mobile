@@ -25,6 +25,11 @@ import org.dom4j.io.XMLWriter;
 import org.springframework.util.Base64Utils;
 
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 @Slf4j
 public class SendUtils {
@@ -34,6 +39,8 @@ public class SendUtils {
                 "d9c2613bc83897c5a6053bc8763f7f51", "pSlRrW259bpE5bh3nAqgXiOOPuXPpWbx",
                 "http://222.245.77.101:28700/ccaweb/CCLIMCA4/2208000.dor", "YT123456");
         log.info("单点登录成功获取的手机号码:{}", mblNo);
+
+        log.info(okHttpRequest("", null));
     }
 
     public static String getMblNo(String credtential, String signData, String secret, String url, String devId) {
@@ -179,6 +186,23 @@ public class SendUtils {
             e.printStackTrace();
         }
         return Signature;
+    }
+
+    private static String okHttpRequest(String url, Object param) {
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/xml");
+        RequestBody body = RequestBody.create(mediaType,
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ROOT><HEAD><TXNCD>2208000</TXNCD><SESSIONID></SESSIONID><PLAT>99</PLAT><UA>default</UA><VERSION>default</VERSION><PLUGINVER></PLUGINVER><NETTYPE></NETTYPE><MCID>default</MCID><MCA>default</MCA><IMEI>default</IMEI><IMSI>default</IMSI><SOURCE>default</SOURCE><DEVID>YT123456</DEVID><SERLNO>160832</SERLNO></HEAD><BODY><CREDTENTIAL>400002978082,1564732020,1564732620,1564732020,210.12.168.242,client.cmpay.com</CREDTENTIAL><SIGN_DATA>d9c2613bc83897c5a6053bc8763f7f51</SIGN_DATA><SIGN_TYPE>MD5</SIGN_TYPE></BODY><SIGNATURE>WdNOG3MFWg5cl/1eTv0WaT9OUZI=</SIGNATURE></ROOT>");
+        Request request = new Request.Builder().url("http://222.245.77.101:28700/ccaweb/CCLIMCA4/2208000.dor").post(body)
+                .addHeader("Content-Type", "application/xml").build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return response.body().string();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
 }
