@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -15,6 +16,10 @@ import java.util.Date;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -40,7 +45,34 @@ public class SendUtils {
                 "http://222.245.77.101:28700/ccaweb/CCLIMCA4/2208000.dor", "YT123456");
         log.info("单点登录成功获取的手机号码:{}", mblNo);
 
-        log.info(okHttpRequest("", null));
+        // 22222222
+        String resXml = okHttpRequest("http://222.245.77.101:28700/ccaweb/CCLIMCA4/2208000.dor",
+                "<ROOT><HEAD><TXNCD>2208000</TXNCD><SESSIONID></SESSIONID><PLAT>99</PLAT><UA>default</UA><VERSION>default</VERSION><PLUGINVER></PLUGINVER><NETTYPE></NETTYPE><MCID>default</MCID><MCA>default</MCA><IMEI>default</IMEI><IMSI>default</IMSI><SOURCE>default</SOURCE><DEVID>YT123456</DEVID><SERLNO>160832</SERLNO></HEAD><BODY><CREDTENTIAL>400002978082,1564732020,1564732620,1564732020,210.12.168.242,client.cmpay.com</CREDTENTIAL><SIGN_DATA>d9c2613bc83897c5a6053bc8763f7f51</SIGN_DATA><SIGN_TYPE>MD5</SIGN_TYPE></BODY><SIGNATURE>WdNOG3MFWg5cl/1eTv0WaT9OUZI=</SIGNATURE></ROOT>");
+        log.info(resXml);
+
+        Unmarshaller um;
+        try {
+            um = JAXBContext.newInstance(Response1.class).createUnmarshaller();
+            Response1 root = (Response1) um.unmarshal(new StringReader(resXml));
+            log.info(root.toString());
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+        // 3333333333
+        String reqXml = buildxml("400002978082,1564732020,1564732620,1564732020,210.12.168.242,client.cmpay.com",
+                "d9c2613bc83897c5a6053bc8763f7f51", "pSlRrW259bpE5bh3nAqgXiOOPuXPpWbx", "YT123456");
+        log.info("request:{}", reqXml);
+        resXml = okHttpRequest("http://222.245.77.101:28700/ccaweb/CCLIMCA4/2208000.dor", reqXml);
+        log.info(resXml);
+
+        try {
+            um = JAXBContext.newInstance(Response1.class).createUnmarshaller();
+            Response1 root = (Response1) um.unmarshal(new StringReader(resXml));
+            log.info(root.toString());
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getMblNo(String credtential, String signData, String secret, String url, String devId) {
@@ -97,6 +129,59 @@ public class SendUtils {
         return writer.toString();
     }
 
+    private static String buildxml(String credtential, String signData, String secret, String devId) {
+        String reqDate = null;
+        Request1 request1 = new Request1();
+        request1.getHead().setTxncd("2208000");
+        request1.getHead().setSessionid("");
+        request1.getHead().setPlat("99");
+        request1.getHead().setUa("default");
+        request1.getHead().setVersion("default");
+        request1.getHead().setPluginver("");
+        request1.getHead().setNettype("");
+        request1.getHead().setMcid("default");
+        request1.getHead().setMca("default");
+        request1.getHead().setImei("default");
+        request1.getHead().setImsi("default");
+        request1.getHead().setSource("default");
+        request1.getHead().setDevid(devId);
+        request1.getHead().setSerlno(new SimpleDateFormat("HHmmss").format(new Date()));
+
+        request1.getBody().setCredtential(credtential);
+        request1.getBody().setSigndata(signData);
+        request1.getBody().setSigntype("MD5");
+
+        Marshaller um;
+        try {
+            um = JAXBContext.newInstance(Request1.class).createMarshaller();
+            final StringWriter writer = new StringWriter();
+            um.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            um.marshal(request1, writer);
+            reqDate = writer.toString();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+        reqDate = reqDate.replace("<ROOT>", "");
+        reqDate = reqDate.replace("</ROOT>", "");
+        reqDate = reqDate.replaceAll("<SIGNATURE>.*</SIGNATURE>", "");
+        String signature = signature(reqDate, secret);
+
+        request1.setSignature(signature);
+
+        try {
+            um = JAXBContext.newInstance(Request1.class).createMarshaller();
+            final StringWriter writer = new StringWriter();
+            um.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            um.marshal(request1, writer);
+            reqDate = writer.toString();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+        return reqDate;
+    }
+
     private static String buildConfirmXmlMessage(String credtential, String signData, String secret, String devId) {
         // 使用 dom4j组装 xml
         Document document = DocumentHelper.createDocument();
@@ -141,8 +226,8 @@ public class SendUtils {
 
         try {
             OutputFormat format = OutputFormat.createCompactFormat();
-            format.setIndent(false);
-            format.setNewlines(false);
+            format.setIndent(true);
+            format.setNewlines(true);
             format.setLineSeparator("");
             baos = new ByteArrayOutputStream();
             writer = new XMLWriter(baos, format);
@@ -188,14 +273,11 @@ public class SendUtils {
         return Signature;
     }
 
-    private static String okHttpRequest(String url, Object param) {
+    private static String okHttpRequest(String url, String inputXml) {
         OkHttpClient client = new OkHttpClient();
 
-        MediaType mediaType = MediaType.parse("application/xml");
-        RequestBody body = RequestBody.create(mediaType,
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ROOT><HEAD><TXNCD>2208000</TXNCD><SESSIONID></SESSIONID><PLAT>99</PLAT><UA>default</UA><VERSION>default</VERSION><PLUGINVER></PLUGINVER><NETTYPE></NETTYPE><MCID>default</MCID><MCA>default</MCA><IMEI>default</IMEI><IMSI>default</IMSI><SOURCE>default</SOURCE><DEVID>YT123456</DEVID><SERLNO>160832</SERLNO></HEAD><BODY><CREDTENTIAL>400002978082,1564732020,1564732620,1564732020,210.12.168.242,client.cmpay.com</CREDTENTIAL><SIGN_DATA>d9c2613bc83897c5a6053bc8763f7f51</SIGN_DATA><SIGN_TYPE>MD5</SIGN_TYPE></BODY><SIGNATURE>WdNOG3MFWg5cl/1eTv0WaT9OUZI=</SIGNATURE></ROOT>");
-        Request request = new Request.Builder().url("http://222.245.77.101:28700/ccaweb/CCLIMCA4/2208000.dor").post(body)
-                .addHeader("Content-Type", "application/xml").build();
+        RequestBody body = RequestBody.create(MediaType.parse("application/xml"), inputXml);
+        Request request = new Request.Builder().url(url).post(body).addHeader("Content-Type", "application/xml").build();
 
         try {
             Response response = client.newCall(request).execute();
