@@ -162,10 +162,7 @@ public class SendUtils {
             e.printStackTrace();
         }
 
-        reqDate = reqDate.replace("<ROOT>", "");
-        reqDate = reqDate.replace("</ROOT>", "");
-        reqDate = reqDate.replaceAll("<SIGNATURE>.*</SIGNATURE>", "");
-        String signature = signature(reqDate, secret);
+        String signature = signature(reqDate.replace("<ROOT>", "").replace("</ROOT>", ""), secret);
 
         request1.setSignature(signature);
 
